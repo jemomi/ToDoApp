@@ -1,0 +1,67 @@
+﻿<div id="where"></div>
+<div class="row">
+    <div class="col-md-12">
+        <header class="main-header">
+            <h1 class="pull-left">Opgaver</h1>
+            <div class="pull-right actions">
+                <a href="#" class="btn btn-success" data-toggle="modal" data-target="#createCategory">Opret Kategori</a>
+            </div>
+        </header>
+    </div>
+
+    <div class="col-md-12">
+        <div class="columns">
+            <!-- Container til alle Kategorier -->
+            <div class="columns-container">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="createCategory" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <form id="createCategoryForm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Opret Kategori</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="categoryName">Navn</label>
+                        <input type="text" name="Name" id="categoryName" placeholder="Navn på kategori" class="form-control" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" id="btnAddCat" class="btn btn-primary">Opret Kategori</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal fade" id="createTask" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <form id="createTaskForm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Opret Opgave</h4>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="CatID" id="CatID" />
+                    <div class="form-group">
+                        <label for="taskName">Navn</label>
+                        <input type="text" name="Name" id="taskName" placeholder="Navn på Opgave" class="form-control" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" id="btnAddToDo" class="btn btn-primary">Opret Opgave</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+

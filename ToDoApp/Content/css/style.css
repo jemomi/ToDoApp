@@ -1,0 +1,230 @@
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.main-header {
+    margin-top: 20px;
+}
+
+    .main-header .actions {
+        margin-top: 30px;
+    }
+
+.columns {
+    white-space: nowrap;
+    -webkit-flex-grow: 1;
+    -moz-flex-grow: 1;
+    -ms-flex-grow: 1;
+    flex-grow: 1;
+}
+
+.columns-container {
+    display: flex;
+    overflow-x: auto;
+    flex-basis: auto;
+    height: 100%;
+}
+
+    .columns-container section {
+        color: #f2f2f2;
+        min-width: 218px;
+        flex-basis: 218px;
+        position: relative;
+        flex-grow: 1;
+    }
+
+        .columns-container section:not(:last-child) {
+            margin-right: 20px;
+        }
+
+            .columns-container section:not(:last-child):before {
+                width: calc(100% + 20px);
+            }
+
+        .columns-container section:before {
+            content: "";
+            position: absolute;
+            width: calc(100%);
+            height: 100%;
+            background-size: 100% 74px;
+            background-position: 0 129px;
+        }
+
+        .columns-container section:not(:last-child) header:after {
+            width: calc(100% + 20px);
+        }
+
+        .columns-container section header:after {
+            content: "";
+            position: absolute;
+            height: 100%;
+            width: 100%;
+            top: 0;
+            z-index: -1;
+        }
+
+        .columns-container section .category {
+            padding-bottom: 18px;
+            padding-top: 25px;
+            position: relative;
+        }
+
+            .columns-container section .category a.delCat {
+                cursor: pointer;
+                font-size: 25px;
+                line-height:25px;
+                color: #e51c23;
+                opacity: 0;
+                position: absolute;
+                top: 0;
+                right: 0;
+            }
+
+            .columns-container section .category:hover a.delCat {
+                opacity: .7;
+            }
+
+                .columns-container section .category:hover a.delCat:hover {
+                    opacity: 1;
+                }
+
+        .columns-container section header .add-inline {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 56px;
+            opacity: 0.8;
+            border-width: 1px;
+            border-style: solid;
+            transition: all .5s;
+            display: block;
+            text-align: center;
+            line-height: 56px;
+            border-color: #f2f2f2;
+        }
+
+
+        .columns-container section .items-column {
+            min-width: 218px;
+            min-height: 100px;
+        }
+
+.columns .task-container {
+    width: 100%;
+    padding: 9px 0;
+    height: 74px;
+    -webkit-transition: width 1s;
+    -moz-transition: width 1s;
+    -o-transition: width 1s;
+    transition: width 1s;
+}
+
+    .columns .task-container .task {
+        position: relative;
+        height: 100%;
+        border-width: 1px;
+        border-style: solid;
+        padding-left: 10px;
+        display: flex;
+        transition: all 75ms ease-in-out;
+        transition: border-color 800ms linear;
+        background: #fff;
+    }
+
+        .columns .task-container .task .title {
+            position: relative;
+            font-size: 13px;
+            height: 100%;
+            line-height: 54px;
+            margin: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex-grow: 1;
+            color: #282828;
+        }
+
+        .columns .task-container .task.finished .title:before {
+            position: absolute;
+            content: "";
+            width: 0;
+            height: 50%;
+            border-bottom: 1px solid rgba(20,20,20,0.25);
+            width: 100% !important;
+        }
+
+        .columns .task-container .task .icon.removeTask {
+            display: none;
+        }
+
+        .columns .task-container .task.finished .icon.removeTask {
+            display: flex;
+        }
+
+        .columns .task-container .task .icon {
+            min-width: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 5px;
+            cursor: pointer;
+        }
+
+            .columns .task-container .task .icon span {
+                color: #282828;
+            }
+
+            .columns .task-container .task .icon:before {
+                content: "";
+                border-radius: 40px;
+                background: #f4f0f0;
+                color: #282828;
+                display: block;
+                height: 40px;
+                width: 40px;
+                position: absolute;
+            }
+
+        .columns .task-container .task.finished span {
+            color: white;
+        }
+
+        .columns .task-container .task.finished .removeTask:before {
+            background: #e51c23;
+        }
+
+        .columns .task-container .task.finished .finishTask:before {
+            background: #2196f3;
+        }
+
+
+h1, h2, h3, h4, h5, h6 {
+    text-transform: uppercase;
+}
+
+h1 {
+    font-size: 40px;
+}
+
+h2 {
+    font-size: 16.3px;
+    padding: 0;
+    margin: 0;
+}
+
+
+
+/*Jquery sortable*/
+.ui-state-highlight {
+    height: 50px;
+    line-height: 1.2em;
+    background: #2196f3;
+    border: #2196f3;
+}
+
+    .ui-state-highlight:first-child {
+        margin-top: 10px;
+    }
