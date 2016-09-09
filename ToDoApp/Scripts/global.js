@@ -1,12 +1,40 @@
+var testData;
+
 $(document).ready(function () {
+    $('.refreshView').on('click', function () {
+        initCategories();
+    });
+    $('.searchTask').on('click', function () {
+        var $self = $(this);
+        var $input = $self.parent().siblings('input');
+        if ($input.val() != "") {
+        $.ajax({
+            url: '../api/ToDoes',
+            method: 'GET',
+            data: 'searchVal=' + $input.val()
+        })
+        .done(function (data) {
+            //console.log(data);
+            getCategories(data);
+
+            $input.val('')
+        })
+        .fail(function () {
+
+        });
+        } else {
+            initCategories();
+        }
+    })
+
     $('input[type=text]').on('focus', function () {
-        //$($(this).labels()[0]).children('span').remove();
         $($(this).form()).removeClass('has-error');
     });
 
     $('#btnAddToDo').on('click', function (e) {
         e.preventDefault();
         addItem($(this), 'ToDoes');
+
     });
 
     $('#btnAddCat').on('click', function (e) {
@@ -22,12 +50,6 @@ $(document).ready(function () {
 
         var data = $form.serialize();
 
-        //$.each(formFields, function (i, item) {
-        //    var $field = $(item);
-        //    var $label = $($field.labels()[0])
-        //    $label.children('span').remove();
-        //});
-
         $.ajax({
             url: '../api/' + urlEndPoint,
             method: 'POST',
@@ -42,7 +64,18 @@ $(document).ready(function () {
                     $field.val('');
                 });
 
-                getCategories();
+                if (data.CatID == undefined) {
+                    testData.push(data);
+                } else {
+                    $.each(testData, function (key, cat) {
+                        if (cat.ID == data.CatID) {
+                            cat.ToDo.push(data);
+                        }
+                    });
+                }
+
+                reGetCategories(testData);
+                //initCategories();
 
                 if (data.Category != null) {
                     $.notify(data.Name + ' tilføjet  til ' + data.Category.Name, 'success');
@@ -58,7 +91,6 @@ $(document).ready(function () {
                     var $label = $($field.labels()[0]);
 
                     $form.addClass('has-error');
-                    //$('<span>', { class: 'text-danger', text: ' fejl: ' + val[0].replace(fieldName, '') }).appendTo($label);
 
                     $field.notify(
                         val[0].replace(fieldName, ''),
@@ -68,116 +100,137 @@ $(document).ready(function () {
             });
     }
 
-    function getCategories() {
-        $('.columns-container').empty();
-
+    function initCategories() {
         $.ajax({
             url: '../api/Categories',
             method: 'GET'
         })
         .done(function (data) {
-            $.each(data, function (key, item) {
-                $('<section>', { 'data-catid': item.ID })
-                .append($('<div>', { class: 'header-column' })
-                    .append($('<header>')
-                        .append($('<div>', { class: 'category', 'data.time': 'Today' })
-                            .append($('<a>', { class: 'delCat', text: 'x', 'data-catid': item.ID }))
-                            .append($('<h2>', { 'id': item.Name.replace(' ', '_'), text: item.Name })))
-                        .append($('<a>', { class: 'add-inline', 'data-catid': item.ID, 'data-toggle': 'modal', 'data-target': '#createTask' })
-                            .append($('<span>', { class: 'glyphicon glyphicon-plus' })))))
-                .append($('<div>', { class: 'items-column', 'data-catid': item.ID })
-                    .append(getTasks(key, item.ToDo))
-                ).appendTo($('.columns-container'));
-                //console.log(item);
-            })
+            getCategories(data);
+        });
+    }
+    function reGetCategories(existingData) {
+        $.ajax({
+            url: '../api/Categories/reget',
+            method: 'POST',
+            data: JSON.stringify(existingData),
+            contentType: "application/json"
+        })
+        .done(function (data) {
+            //console.log(data);
+            getCategories(data);
+        });
+    }
 
-            $(".items-column").sortable({
-                connectWith: ".items-column",
-                placeholder: "ui-state-highlight",
+    initCategories();
 
-                receive: function (event, ui) {
-                    var $task = $(ui.item).children('.task');
-                    var taskID = $task.data().taskid;
-                    var catID = $(event.target).data().catid;
-                    var $taskData = $task.children('.task-Data');
+    function getCategories(catData) {
+        testData = catData;
+        $('.columns-container').empty();
 
-                    $taskData.children('input[name=CatID]').val(catID);
+        $.each(catData, function (key, item) {
+            $('<section>', { 'data-catid': item.ID })
+            .append($('<div>', { class: 'header-column' })
+                .append($('<header>')
+                    .append($('<div>', { class: 'category', 'data.time': 'Today' })
+                        .append($('<a>', { class: 'delCat', text: 'x', 'data-catid': item.ID }))
+                        .append($('<h2>', { 'id': item.Name.replace(' ', '_'), text: item.Name })))
+                    .append($('<a>', { class: 'add-inline', 'data-catid': item.ID, 'data-toggle': 'modal', 'data-target': '#createTask' })
+                        .append($('<span>', { class: 'glyphicon glyphicon-plus' })))))
+            .append($('<div>', { class: 'items-column', 'data-catid': item.ID })
+                .append(getTasks(key, item.ToDo))
+            ).appendTo($('.columns-container'));
+            //console.log(item);
+        });
+        $(".items-column").sortable({
+            connectWith: ".items-column",
+            placeholder: "ui-state-highlight",
 
-                    var data = $taskData.serialize();
-
-                    $.ajax({
-                        url: '../api/ToDoes/' + taskID,
-                        method: 'PUT',
-                        data: data
-                    }).done(function () {
-                        getCategories();
-                    });
-                }
-            }).disableSelection();
-
-            $('.delCat').on('click', function () {
-                var id = $(this).data().catid;
-
-                $.ajax({
-                    url: '../api/Categories/' + id,
-                    method: 'DELETE'
-                }).done(function (data) {
-                    getCategories();
-                    $.notify('Slettet kategori: ' + data.Name, 'warn');
-                });
-            });
-
-            $('.add-inline').on('click', function (e) {
-                var $self = $(this);
-                var catID = $self.data().catid;
-                var modal = $self.data().target;
-                var $modal = $(modal);
-                var $form = $modal.children('.modal-dialog').children('form');
-                var $inputHolder = $form.children('.modal-content').children('.modal-body')
-
-                $inputHolder.children('input[name=CatID]').val(catID);
-            });
-
-            $('.finishTask').on("click", function () {
-                var $self = $(this);
-                var $task = $self.closest('.task')
-                var id = $task.data().taskid;
+            receive: function (event, ui) {
+                var $task = $(ui.item).children('.task');
+                var taskID = $task.data().taskid;
+                var catID = $(event.target).data().catid;
                 var $taskData = $task.children('.task-Data');
 
-                $task.toggleClass("finished");
-
-                $taskData.children('input[name=Finished]').val($task.hasClass('finished'));
+                $taskData.children('input[name=CatID]').val(catID);
 
                 var data = $taskData.serialize();
 
                 $.ajax({
-                    url: '../api/ToDoes/' + id,
+                    url: '../api/ToDoes/' + taskID,
                     method: 'PUT',
                     data: data
-                }).done(function (data) {
-                    getCategories();
-
-                    var checked = (data.Finished) ? "fuldført" : "genoptaget"
-                    $.notify(data.Name + ' ' + checked, "info");
+                }).done(function () {
+                    reGetCategories(catData);
+                    //initCategories();
                 });
+            }
+        }).disableSelection();
+
+        $('.delCat').on('click', function () {
+            var id = $(this).data().catid;
+
+            $.ajax({
+                url: '../api/Categories/' + id,
+                method: 'DELETE'
+            }).done(function (data) {
+                reGetCategories(catData);
+                //initCategories();
+                $.notify('Slettet kategori: ' + data.Name, 'warn');
             });
+        });
 
-            $('.removeTask').on("click", function () {
-                var $self = $(this);
-                var $task = $self.closest('.task')
-                var id = $task.data().taskid;
+        $('.add-inline').on('click', function (e) {
+            var $self = $(this);
+            var catID = $self.data().catid;
+            var modal = $self.data().target;
+            var $modal = $(modal);
+            var $form = $modal.children('.modal-dialog').children('form');
+            var $inputHolder = $form.children('.modal-content').children('.modal-body')
 
-                $.ajax({
-                    url: '../api/ToDoes/' + id,
-                    method: 'DELETE'
-                }).done(function (data) {
-                    getCategories();
-                    $.notify('Slettet task: ' + data.Name, 'warn');
-                });
+            $inputHolder.children('input[name=CatID]').val(catID);
+        });
+
+        $('.finishTask').on("click", function () {
+            var $self = $(this);
+            var $task = $self.closest('.task')
+            var id = $task.data().taskid;
+            var $taskData = $task.children('.task-Data');
+
+            $task.toggleClass("finished");
+
+            $taskData.children('input[name=Finished]').val($task.hasClass('finished'));
+
+            var data = $taskData.serialize();
+
+            $.ajax({
+                url: '../api/ToDoes/' + id,
+                method: 'PUT',
+                data: data
+            }).done(function (data) {
+                reGetCategories(catData);
+                //initCategories();
+
+                var checked = (data.Finished) ? "fuldført" : "genoptaget"
+                $.notify(data.Name + ' ' + checked, "info");
+            });
+        });
+
+        $('.removeTask').on("click", function () {
+            var $self = $(this);
+            var $task = $self.closest('.task')
+            var id = $task.data().taskid;
+
+            $.ajax({
+                url: '../api/ToDoes/' + id,
+                method: 'DELETE'
+            }).done(function (data) {
+                reGetCategories(catData);
+                //initCategories();
+                $.notify('Slettet task: ' + data.Name, 'warn');
             });
         });
     }
-    getCategories();
 
     function getTasks(i, ToDos) {
         var ToDoList = [];

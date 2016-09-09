@@ -35,10 +35,40 @@ namespace ToDoApp.Controllers
         //    return Ok(toDo);
         //}
 
+        // GET: api/ToDoes/5
+        [ResponseType(typeof(ToDo))]
+        public IHttpActionResult GetToDo(string searchVal)
+        {
+            List<Category> listCategories = new List<Category>();
+            List<ToDo> listToDo = db.ToDo.Where(p => p.Name.Contains(searchVal)).ToList();
+
+            if (listToDo == null)
+            {
+                return NotFound();
+            }
+            foreach (var todo in listToDo)
+            {
+                Category cat = listCategories.Where(p => p.ID == todo.CatID).FirstOrDefault();
+
+                if (cat == null)
+                {
+                    todo.Category.ToDo.Clear();
+                    listCategories.Add(todo.Category);
+
+                    cat = listCategories.Where(p => p.ID == todo.CatID).FirstOrDefault();
+                }
+                cat.ToDo.Add(todo);
+            }
+
+            return Ok(listCategories);
+        }
+
         // PUT: api/ToDoes/5
         [ResponseType(typeof(void))]
         public IHttpActionResult PutToDo(int id, ToDo toDo)
         {
+            toDo.Category = db.Category.Find(toDo.CatID);
+            ModelState.Remove("toDo.Category.Name");
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);

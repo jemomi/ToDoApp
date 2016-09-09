@@ -12,6 +12,7 @@ using ToDoApp.Models;
 
 namespace ToDoApp.Controllers
 {
+    [RoutePrefix("api/Categories")]
     public class CategoriesController : ApiController
     {
         private TodoModel db = new TodoModel();
@@ -34,6 +35,53 @@ namespace ToDoApp.Controllers
             }
 
             return Ok(category);
+        }
+
+        //[ResponseType(typeof(Category))]
+        [HttpPost]
+        [Route("reget")]
+        public IHttpActionResult GetCategory(List<Category> listCat)
+        {
+            List<Category> newListCat = new List<Category>();
+            if (listCat == null)
+            {
+                return Ok(db.Category);
+            }
+            foreach (Category cat in listCat)
+            {
+                Category dbCat = db.Category.Find(cat.ID);
+                if (dbCat != null)
+                {
+                    Category newCat = new Category()
+                    {
+                        ID = dbCat.ID,
+                        Name = dbCat.Name
+                    };
+                    if (!newListCat.Contains(newCat))
+                    {
+                        newListCat.Add(newCat);
+                    }
+                }
+            }
+            foreach (Category cat in listCat)
+            {
+                foreach (ToDo todo in cat.ToDo)
+                {
+                    ToDo dbToDo = db.ToDo.Find(todo.ID);
+                    if (dbToDo != null)
+                    {
+                        Category newCat = newListCat.Find(p => p.ID == dbToDo.CatID);
+                        newCat.ToDo.Add(dbToDo);
+                    }
+                    else
+                    {
+                        //Item not in DB
+                    }
+                }
+            }
+            //Category category = db.Category.Find(id);
+
+            return Ok(newListCat);
         }
 
         // PUT: api/Categories/5
